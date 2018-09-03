@@ -30,6 +30,8 @@ foreach($list as $v){
 	}
 	$out[$v]['tip']  = file_get_contents($dir.$v.'/readme.txt');
 	$deep = scandir($dir.$v);
+
+ 
 	foreach($deep as $v1){
 		$next  = $dir.$v.'/'.$v1;
 		if(in_array($v1,$ignore)  ){
@@ -40,9 +42,22 @@ foreach($list as $v){
 		}
 		$out[$v]['lists'][$v1]['tip']  = file_get_contents($next.'/tip.txt');
 		$out[$v]['lists'][$v1]['readme']  = file_get_contents($next.'/readme.txt');
+		$out[$v]['lists'][$v1]['time']  =  date("Y-m-d H:i:s",filectime($next));
 	}
 
 }
+
+foreach($out as $k=>$v){
+	$arr = $v['lists'];
+	$time = [];
+	foreach($v['lists'] as $k1=>$v1){
+		$time[$k1] = $v1['time'];
+	}
+	array_multisort($time, SORT_DESC, SORT_STRING, $arr);
+	$out[$k]['lists'] = $arr;
+}
+ 
+
 
 $app->get('/', function ($request, $response, $args) use($config , $out) {
 	$type = $args['type'];
